@@ -1,36 +1,45 @@
-﻿namespace CadPessoa.Api;
+﻿using CadPessoa.Api.Configuration;
 
-public class Startup
+namespace CadPessoa.Api
 {
-
-    public Startup(IConfiguration configuration)
+    public class Startup
     {
-        Configuration = configuration;
-    }
+        public IConfiguration Configuration { get; }
 
-    public IConfiguration Configuration { get; }
-
-    public void ConfigurationService(IServiceCollection services)
-    {
-
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-
-    }
-
-    public void Configure(WebApplication app, IWebHostEnvironment environment)
-    {
-        if (app.Environment.IsDevelopment())
+        public Startup(IHostEnvironment hostEnvironment)
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(hostEnvironment.ContentRootPath)
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{hostEnvironment.EnvironmentName}.json", true, true)
+                .AddEnvironmentVariables();
+
+            if (hostEnvironment.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            Configuration = builder.Build();
         }
 
-        app.UseHttpsRedirection();
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddIdentityConfiguration(Configuration);
 
-        app.UseAuthorization();
+            services.AddApiConfiguration();
 
-        app.MapControllers();
+            services.AddSwaggerConfiguration();
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            app.UseSwaggerConfiguration();
+
+            app.UseApiConfiguration(env);
+
+            app.UseCors(option => option.AllowAnyHeader()
+                                  .AllowAnyMethod()
+                                  .AllowAnyOrigin());
+        }
     }
 }

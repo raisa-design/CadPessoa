@@ -1,11 +1,20 @@
 using CadPessoa.Api;
 
-var builder = WebApplication.CreateBuilder(args);
 
-var startup = new Startup(builder.Configuration);
-startup.ConfigurationService(builder.Services);
+namespace Nse.Identidade.Api
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-var app = builder.Build();
-
-startup.Configure(app, app.Environment);
-app.Run();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}
