@@ -4,6 +4,7 @@ using CadPessoa.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CadPessoa.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240121085650_PessoaFisica")]
+    partial class PessoaFisica
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,73 +23,6 @@ namespace CadPessoa.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.Contato", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PessoaFisicaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TelefoneOuEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TipoContato")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PessoaFisicaId");
-
-                    b.ToTable("Contatos");
-                });
-
-            modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.Endereco", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Cep")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Cidade")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Componente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Logradouro")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Numero")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("PessoaFisicaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PessoaFisicaId");
-
-                    b.ToTable("Enderecos");
-                });
 
             modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.PessoaFisica", b =>
                 {
@@ -325,24 +260,6 @@ namespace CadPessoa.Api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.Contato", b =>
-                {
-                    b.HasOne("CadPessoa.Api.Domain.Entidades.PessoaFisica", "PessoaFisica")
-                        .WithMany("Contatos")
-                        .HasForeignKey("PessoaFisicaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PessoaFisica");
-                });
-
-            modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.Endereco", b =>
-                {
-                    b.HasOne("CadPessoa.Api.Domain.Entidades.PessoaFisica", null)
-                        .WithMany("Enderecos")
-                        .HasForeignKey("PessoaFisicaId");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -392,13 +309,6 @@ namespace CadPessoa.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.PessoaFisica", b =>
-                {
-                    b.Navigation("Contatos");
-
-                    b.Navigation("Enderecos");
                 });
 #pragma warning restore 612, 618
         }
