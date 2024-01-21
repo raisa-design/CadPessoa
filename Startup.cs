@@ -1,4 +1,6 @@
 ﻿using CadPessoa.Api.Configuration;
+using CadPessoa.Api.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace CadPessoa.Api
 {
@@ -8,6 +10,8 @@ namespace CadPessoa.Api
 
         public Startup(IHostEnvironment hostEnvironment)
         {
+
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(hostEnvironment.ContentRootPath)
                 .AddJsonFile("appsettings.json", true, true)
@@ -24,6 +28,7 @@ namespace CadPessoa.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddIdentityConfiguration(Configuration);
 
             services.AddApiConfiguration();
