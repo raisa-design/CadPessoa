@@ -9,6 +9,7 @@
         public string Cidade { get; set; }
         public string Cep { get; set; }
         public string Estado { get; set; }
-        PessoaFisica PessoaFisica { get; set; }
+        public Guid PessoaFisicaId { get; set; }
+        public PessoaFisica? PessoaFisica { get; set; }
     }
 }

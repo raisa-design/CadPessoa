@@ -1,5 +1,6 @@
 ﻿using CadPessoa.Api.Data;
 using CadPessoa.Api.Domain.Entidades;
+using CadPessoa.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,22 +22,25 @@ namespace CadPessoa.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PessoaFisica>>> GetAnuncios()
         {
-            if (_context.PessoaFisicas== null)
+            if (_context.pessoaFisicas== null)
             {
                 return NotFound();
             }
-            return await _context.PessoaFisicas.ToListAsync();
+            return await _context.pessoaFisicas
+                .Include(p => p.Enderecos)
+                .Include(p => p.Contatos)
+                .ToListAsync();
         }
 
         // GET: api/Anuncios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<PessoaFisica>> GetAnuncio([FromBody] Guid id)
         {
-            if (_context.PessoaFisicas == null)
+            if (_context.pessoaFisicas == null)
             {
                 return NotFound();
             }
-            var anuncio = await _context.PessoaFisicas
+            var anuncio = await _context.pessoaFisicas
                 .FirstOrDefaultAsync();
 
             if (anuncio == null)
@@ -47,28 +51,49 @@ namespace CadPessoa.Api.Controllers
             return anuncio;
         }
 
-        // PUT: api/Anuncios/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAnuncio([FromBody] PessoaFisica model)
+        public async Task<IActionResult> PutPessoaFisica([FromBody] Guid id, [FromBody] PessoaFisicaEditViewModel pessoaFisicaViewModel)
         {
 
-            var pessoaFisica = await _context.PessoaFisicas
-                .FirstOrDefaultAsync();
-
-            pessoaFisica = new PessoaFisica
+            var pessoaFisica = await _context.pessoaFisicas.FindAsync(id);
+            if (pessoaFisica == null)
             {
-                Id = model.Id, 
-                Nome = model.Nome,
-                SobreNome = model.SobreNome,
-                Cpf = model.Cpf,
-                DataNascimento = model.DataNascimento,
-                Email = model.Email,
-                Rg = model.Rg
+                return NotFound();
+            }
 
-            };
+            // Atualiza a PessoaFisica com os dados da ViewModel
+            pessoaFisica.Nome = pessoaFisicaViewModel.Nome;
+            pessoaFisica.SobreNome = pessoaFisicaViewModel.SobreNome;
+            pessoaFisica.DataNascimento = pessoaFisicaViewModel.DataNascimento;
+            pessoaFisica.Email = pessoaFisicaViewModel.Email;
+            pessoaFisica.Cpf = pessoaFisicaViewModel.Cpf;
+            pessoaFisica.Rg = pessoaFisicaViewModel.Rg;
 
-            _context.PessoaFisicas.Update(pessoaFisica);
+            // Atualiza os Enderecos e Contatos com os dados da ViewModel
+            foreach (var enderecoViewModel in pessoaFisicaViewModel.Enderecos)
+            {
+                var endereco = pessoaFisica.Enderecos.FirstOrDefault(e => e.Id == enderecoViewModel.Id);
+                if (endereco != null)
+                {
+                    endereco.Logradouro = enderecoViewModel.Logradouro;
+                    endereco.Componente = enderecoViewModel.Componente;
+                    endereco.Numero = enderecoViewModel.Numero;
+                    endereco.Cidade = enderecoViewModel.Cidade;
+                    endereco.Cep = enderecoViewModel.Cep;
+                    endereco.Estado = enderecoViewModel.Estado;
+                }
+            }
+
+            foreach (var contatoViewModel in pessoaFisicaViewModel.Contatos)
+            {
+                var contato = pessoaFisica.Contatos.FirstOrDefault(c => c.Id == contatoViewModel.Id);
+                if (contato != null)
+                {
+                    contato.Nome = contatoViewModel.Nome;
+                    contato.TelefoneOuEmail = contatoViewModel.TelefoneOuEmail;
+                    contato.TipoContato = contatoViewModel.TipoContato;
+                }
+            }
 
             try
             {
@@ -76,7 +101,7 @@ namespace CadPessoa.Api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AnuncioExists(pessoaFisica.Id))
+                if (!_context.pessoaFisicas.Any(e => e.Id == pessoaFisicaViewModel.Id))
                 {
                     return NotFound();
                 }
@@ -91,14 +116,62 @@ namespace CadPessoa.Api.Controllers
 
         // POST: api/Anuncios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPost]
+        //public async Task<ActionResult<PessoaFisica>> PostAnuncio([FromBody] PessoaFisicaViewModel pessoaFisicaViewModel)
+        //{
+        //    if (_context.pessoaFisicas == null)
+        //    {
+        //        return Problem("Entity set 'DataContext.Anuncios'  is null.");
+        //    }
+        //    _context.pessoaFisicas.Add(pessoaFisica);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction("GetAnuncio", new { id = pessoaFisica.Id }, pessoaFisica);
+        //}
+
         [HttpPost]
-        public async Task<ActionResult<PessoaFisica>> PostAnuncio([FromBody] PessoaFisica pessoaFisica)
+        public async Task<ActionResult<PessoaFisica>> PostAnuncio([FromBody] PessoaFisicaViewModel pessoaFisicaViewModel)
         {
-            if (_context.PessoaFisicas == null)
+            if (_context.pessoaFisicas == null)
             {
                 return Problem("Entity set 'DataContext.Anuncios'  is null.");
             }
-            _context.PessoaFisicas.Add(pessoaFisica);
+
+            // Cria uma nova PessoaFisica a partir da ViewModel
+            var pessoaFisica = new PessoaFisica
+            {
+                Id = Guid.NewGuid(),
+                Nome = pessoaFisicaViewModel.Nome,
+                SobreNome = pessoaFisicaViewModel.SobreNome,
+                DataNascimento = pessoaFisicaViewModel.DataNascimento,
+                Email = pessoaFisicaViewModel.Email,
+                Cpf = pessoaFisicaViewModel.Cpf,
+                Rg = pessoaFisicaViewModel.Rg,
+            };
+
+            // Adiciona os endereços e contatos à PessoaFisica
+            pessoaFisica.Enderecos = pessoaFisicaViewModel.Enderecos.Select(e => new Endereco
+            {
+                Id = Guid.NewGuid(),
+                Logradouro = e.Logradouro,
+                Componente = e.Componente,
+                Numero = e.Numero,
+                Cidade = e.Cidade,
+                Cep = e.Cep,
+                Estado = e.Estado,
+                PessoaFisicaId = pessoaFisica.Id
+            }).ToList();
+
+            pessoaFisica.Contatos = pessoaFisicaViewModel.Contatos.Select(c => new Contato
+            {
+                Id = Guid.NewGuid(),
+                Nome = c.Nome,
+                TelefoneOuEmail = c.TelefoneOuEmail,
+                TipoContato = c.TipoContato,
+                PessoaFisicaId = pessoaFisica.Id
+            }).ToList();
+
+            _context.pessoaFisicas.Add(pessoaFisica);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAnuncio", new { id = pessoaFisica.Id }, pessoaFisica);
@@ -108,17 +181,17 @@ namespace CadPessoa.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnuncio(Guid id)
         {
-            if (_context.PessoaFisicas == null)
+            if (_context.pessoaFisicas == null)
             {
                 return NotFound();
             }
-            var anuncio = await _context.PessoaFisicas.Where(a => a.Id == id).FirstOrDefaultAsync();
+            var anuncio = await _context.pessoaFisicas.Where(a => a.Id == id).FirstOrDefaultAsync();
             if (anuncio == null)
             {
                 return NotFound();
             }
 
-            _context.PessoaFisicas.Remove(anuncio);
+            _context.pessoaFisicas.Remove(anuncio);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -126,7 +199,7 @@ namespace CadPessoa.Api.Controllers
 
         private bool AnuncioExists(Guid id)
         {
-            return (_context.PessoaFisicas?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.pessoaFisicas?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

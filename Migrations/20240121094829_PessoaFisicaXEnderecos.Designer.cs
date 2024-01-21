@@ -94,7 +94,7 @@ namespace CadPessoa.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PessoaFisicas");
+                    b.ToTable("pessoaFisicas");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

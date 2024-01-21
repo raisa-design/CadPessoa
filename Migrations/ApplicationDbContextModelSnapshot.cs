@@ -79,7 +79,7 @@ namespace CadPessoa.Api.Migrations
                     b.Property<int>("Numero")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("PessoaFisicaId")
+                    b.Property<Guid>("PessoaFisicaId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -120,7 +120,7 @@ namespace CadPessoa.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PessoaFisicas");
+                    b.ToTable("pessoaFisicas");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -338,9 +338,13 @@ namespace CadPessoa.Api.Migrations
 
             modelBuilder.Entity("CadPessoa.Api.Domain.Entidades.Endereco", b =>
                 {
-                    b.HasOne("CadPessoa.Api.Domain.Entidades.PessoaFisica", null)
+                    b.HasOne("CadPessoa.Api.Domain.Entidades.PessoaFisica", "PessoaFisica")
                         .WithMany("Enderecos")
-                        .HasForeignKey("PessoaFisicaId");
+                        .HasForeignKey("PessoaFisicaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PessoaFisica");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -25,7 +25,7 @@ namespace CadPessoa.Api.Migrations
                     table.ForeignKey(
                         name: "FK_Contatos_PessoaFisicas_PessoaFisicaId",
                         column: x => x.PessoaFisicaId,
-                        principalTable: "PessoaFisicas",
+                        principalTable: "pessoaFisicas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });

@@ -28,7 +28,7 @@ namespace CadPessoa.Api.Migrations
                     table.ForeignKey(
                         name: "FK_Enderecos_PessoaFisicas_PessoaFisicaId",
                         column: x => x.PessoaFisicaId,
-                        principalTable: "PessoaFisicas",
+                        principalTable: "pessoaFisicas",
                         principalColumn: "Id");
                 });
 
