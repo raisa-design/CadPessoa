@@ -1,4 +1,4 @@
-﻿namespace CadPessoa.Api.Domain.Entidades
+namespace CadPessoa.Api.Domain.Entidades
 {
     public class Endereco
     {

@@ -25,7 +25,9 @@ namespace CadPessoa.Api.Configuration
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("Development");
+            app.UseCors(option => option.AllowAnyHeader()
+                                 .AllowAnyMethod()
+                                 .AllowAnyOrigin());
 
             app.UseHttpsRedirection();
 

@@ -1,4 +1,4 @@
-﻿namespace CadPessoa.Api.Models
+namespace CadPessoa.Api.Models
 {
     public class PessoaFisicaEditViewModel
     {
@@ -15,7 +15,6 @@
 
     public class EnderecoEditViewModel
     {
-        public Guid Id { get; set; }
         public string Logradouro { get; set; }
         public string Componente { get; set; }
         public int Numero { get; set; }
@@ -26,7 +25,7 @@
 
     public class ContatoEditViewModel
     {
-        public Guid Id { get; set; }
+
         public string Nome { get; set; }
         public string TelefoneOuEmail { get; set; }
         public string TipoContato { get; set; }

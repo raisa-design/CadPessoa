@@ -1,4 +1,4 @@
-﻿namespace CadPessoa.Api.Models
+namespace CadPessoa.Api.Models
 {
     public class PessoaFisicaViewModel
     {

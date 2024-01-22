@@ -66,7 +66,7 @@ namespace CadPessoa.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Componente")
+                    b.Property<string>("Complemento")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
