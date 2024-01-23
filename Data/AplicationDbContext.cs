@@ -8,7 +8,7 @@ namespace CadPessoa.Api.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<PessoaFisica> pessoaFisicas { get; set; }
+        public DbSet<PessoaFisica> pessoaFisicas { get; set; } 
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Contato> Contatos { get; set; } 
 
