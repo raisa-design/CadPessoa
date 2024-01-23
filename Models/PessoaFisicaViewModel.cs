@@ -15,7 +15,7 @@ namespace CadPessoa.Api.Models
     public class EnderecoViewModel
     {
         public string Logradouro { get; set; }
-        public string Componente { get; set; }
+        public string Complemento { get; set; }
         public int Numero { get; set; }
         public string Cidade { get; set; }
         public string Cep { get; set; }

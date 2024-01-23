@@ -64,7 +64,7 @@ namespace CadPessoa.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Componente")
+                    b.Property<string>("Complemento")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -120,7 +120,7 @@ namespace CadPessoa.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("pessoaFisicas");
+                    b.ToTable("PessoasFisica");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
