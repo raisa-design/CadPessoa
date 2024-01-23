@@ -10,7 +10,7 @@ namespace CadPessoa.Api.Data
 
         public DbSet<PessoaFisica> pessoaFisicas { get; set; }
         public DbSet<Endereco> Enderecos { get; set; }
-        public DbSet<Contato> Contatos { get; set; }
+        public DbSet<Contato> Contatos { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
