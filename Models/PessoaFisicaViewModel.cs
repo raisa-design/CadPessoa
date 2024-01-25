@@ -8,8 +8,8 @@ namespace CadPessoa.Api.Models
         public string Email { get; set; }
         public string Cpf { get; set; }
         public string Rg { get; set; }
-        public List<EnderecoViewModel> Enderecos { get; set; }
-        public List<ContatoViewModel> Contatos { get; set; }
+        public List<EnderecoViewModel> Enderecos { get; set; } = new List<EnderecoViewModel>();
+        public List<ContatoViewModel> Contatos { get; set; } = new List<ContatoViewModel>();
     }
 
     public class EnderecoViewModel

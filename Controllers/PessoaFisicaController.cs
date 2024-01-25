@@ -17,8 +17,6 @@ namespace CadPessoa.Api.Controllers
             _context = context;
         }
 
-
-        // GET: api/Anuncios
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PessoaFisica>>> GetAnuncios()
         {
@@ -42,19 +40,19 @@ namespace CadPessoa.Api.Controllers
                 return NotFound();
             }
 
-            return pessoaFisica;
+            return Ok(pessoaFisica);
         }
 
-        [HttpPut()]
-        public async Task<IActionResult> PutPessoaFisica([FromBody] PessoaFisicaEditViewModel pessoaFisicaViewModel)
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutPessoaFisica(Guid id, [FromBody] PessoaFisicaEditViewModel pessoaFisicaViewModel)
         {
-            var pessoaFisica = await _context.PessoasFisica.Where(x => x.Id == pessoaFisicaViewModel.Id).Include(x => x.Contatos).Include(x => x.Enderecos).FirstAsync();
+            var pessoaFisica = await _context.PessoasFisica.Where(x => x.Id == id).Include(x => x.Contatos).Include(x => x.Enderecos).FirstAsync();
             if (pessoaFisica == null)
             {
                 return NotFound();
             }
 
-            // Atualiza a PessoaFisica com os dados da ViewModel
             pessoaFisica.Nome = pessoaFisicaViewModel.Nome;
             pessoaFisica.SobreNome = pessoaFisicaViewModel.SobreNome;
             pessoaFisica.DataNascimento = pessoaFisicaViewModel.DataNascimento;
@@ -62,34 +60,39 @@ namespace CadPessoa.Api.Controllers
             pessoaFisica.Cpf = pessoaFisicaViewModel.Cpf;
             pessoaFisica.Rg = pessoaFisicaViewModel.Rg;
 
-            // Limpa as listas de Enderecos e Contatos
             pessoaFisica.Enderecos.Clear();
             pessoaFisica.Contatos.Clear();
 
-            // Adiciona os novos Enderecos e Contatos da ViewModel
-            foreach (var enderecoViewModel in pessoaFisicaViewModel.Enderecos)
+            if (pessoaFisica.Enderecos != null)
             {
-                var endereco = new Endereco
+                foreach (var enderecoViewModel in pessoaFisicaViewModel.Enderecos)
                 {
-                    Logradouro = enderecoViewModel.Logradouro,
-                    Complemento = enderecoViewModel.Complemento,
-                    Numero = enderecoViewModel.Numero,
-                    Cidade = enderecoViewModel.Cidade,
-                    Cep = enderecoViewModel.Cep,
-                    Estado = enderecoViewModel.Estado
-                };
-                pessoaFisica.Enderecos.Add(endereco);
+                    var endereco = new Endereco
+                    {
+                        Logradouro = enderecoViewModel.Logradouro,
+                        Complemento = enderecoViewModel.Complemento,
+                        Numero = enderecoViewModel.Numero,
+                        Cidade = enderecoViewModel.Cidade,
+                        Cep = enderecoViewModel.Cep,
+                        Estado = enderecoViewModel.Estado
+                    };
+                    pessoaFisica.Enderecos.Add(endereco);
+                }
             }
 
-            foreach (var contatoViewModel in pessoaFisicaViewModel.Contatos)
+            if (pessoaFisica.Contatos != null)
             {
-                var contato = new Contato
+
+                foreach (var contatoViewModel in pessoaFisicaViewModel.Contatos)
                 {
-                    Nome = contatoViewModel.Nome,
-                    TelefoneOuEmail = contatoViewModel.TelefoneOuEmail,
-                    TipoContato = contatoViewModel.TipoContato
-                };
-                pessoaFisica.Contatos.Add(contato);
+                    var contato = new Contato
+                    {
+                        Nome = contatoViewModel.Nome,
+                        TelefoneOuEmail = contatoViewModel.TelefoneOuEmail,
+                        TipoContato = contatoViewModel.TipoContato
+                    };
+                    pessoaFisica.Contatos.Add(contato);
+                }
             }
 
             try
@@ -109,7 +112,7 @@ namespace CadPessoa.Api.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(pessoaFisica);
         }
 
 
@@ -121,7 +124,6 @@ namespace CadPessoa.Api.Controllers
                 return Problem("Entity set 'DataContext.Anuncios'  is null.");
             }
 
-            // Cria uma nova PessoaFisica a partir da ViewModel
             var pessoaFisica = new PessoaFisica
             {
                 Id = Guid.NewGuid(),
@@ -133,37 +135,42 @@ namespace CadPessoa.Api.Controllers
                 Rg = pessoaFisicaViewModel.Rg,
             };
 
-            // Adiciona os endereços e contatos à PessoaFisica
-            pessoaFisica.Enderecos = pessoaFisicaViewModel.Enderecos.Select(e => new Endereco
+       
+            if (pessoaFisica.Enderecos != null)
             {
-                Id = Guid.NewGuid(),
-                Logradouro = e.Logradouro,
-                Complemento = e.Complemento,
-                Numero = e.Numero,
-                Cidade = e.Cidade,
-                Cep = e.Cep,
-                Estado = e.Estado,
-                PessoaFisicaId = pessoaFisica.Id
-            }).ToList();
+                pessoaFisica.Enderecos = pessoaFisicaViewModel.Enderecos.Select(e => new Endereco
+                {
+                    Id = Guid.NewGuid(),
+                    Logradouro = e.Logradouro,
+                    Complemento = e.Complemento,
+                    Numero = e.Numero,
+                    Cidade = e.Cidade,
+                    Cep = e.Cep,
+                    Estado = e.Estado,
+                    PessoaFisicaId = pessoaFisica.Id
+                }).ToList();
+            }
 
-            pessoaFisica.Contatos = pessoaFisicaViewModel.Contatos.Select(c => new Contato
+            if (pessoaFisica.Contatos != null)
             {
-                Id = Guid.NewGuid(),
-                Nome = c.Nome,
-                TelefoneOuEmail = c.TelefoneOuEmail,
-                TipoContato = c.TipoContato,
-                PessoaFisicaId = pessoaFisica.Id
-            }).ToList();
+                pessoaFisica.Contatos = pessoaFisicaViewModel.Contatos.Select(c => new Contato
+                {
+                    Id = Guid.NewGuid(),
+                    Nome = c.Nome,
+                    TelefoneOuEmail = c.TelefoneOuEmail,
+                    TipoContato = c.TipoContato,
+                    PessoaFisicaId = pessoaFisica.Id
+                }).ToList();
+            }
 
-            _context.PessoasFisica.Add(pessoaFisica);
+                _context.PessoasFisica.Add(pessoaFisica);
             await _context.SaveChangesAsync();
 
             return Ok(pessoaFisica);
         }
 
-        // DELETE: api/Anuncios/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePessoaFisica(Guid id)
+        public async Task<ActionResult<PessoaFisica>> DeletePessoaFisica(Guid id)
         {
             var pessoaFisica = await _context.PessoasFisica.Include(x => x.Contatos).Include(x => x.Enderecos).FirstOrDefaultAsync(x => x.Id == id);
             if (pessoaFisica == null)
@@ -174,7 +181,7 @@ namespace CadPessoa.Api.Controllers
             _context.PessoasFisica.Remove(pessoaFisica);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(pessoaFisica);
         }
 
 
