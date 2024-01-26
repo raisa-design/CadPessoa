@@ -2,12 +2,16 @@
 using System.Security.Claims;
 using System.Text;
 using System.Xml.Linq;
+using CadPessoa.Api.Data;
 using CadPessoa.Api.Domain.Entidades;
 using CadPessoa.Api.Extensions;
+using CadPessoa.Api.Migrations;
 using CadPessoa.Api.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -20,14 +24,20 @@ namespace CadPessoa.Api.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly AppSettings _appSettings;
+        private readonly IWebHostEnvironment _hostEnviroment;
+        private readonly ApplicationDbContext _context;
 
         public AuthController(SignInManager<IdentityUser> signInManager,
                               UserManager<IdentityUser> userManager,
-                              IOptions<AppSettings> appSettings)
+                              IOptions<AppSettings> appSettings,
+                              IWebHostEnvironment IWebHostEnviroment,
+                              ApplicationDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _appSettings = appSettings.Value;
+            _hostEnviroment = IWebHostEnviroment;
+            _context = context;
         }
 
         [HttpGet]
@@ -48,20 +58,25 @@ namespace CadPessoa.Api.Controllers
                 EmailConfirmed = true
             };
 
-            //var usuario = new Usuario
-            //{ 
-            //    UserName = usuarioRegistro.
-            
-            
-            //};
 
+            var usuario = new Domain.Entidades.Usuario
+            {
+                    UserName = usuarioRegistro.UserName,
+                    Telefone = usuarioRegistro.Telefone,
+                    UrlImagem = usuarioRegistro.UrlImagem
+            };
 
+            
 
             var result = await _userManager.CreateAsync(user, usuarioRegistro.Senha);
 
+             _context.Usuarios.Add(usuario);
+            await _context.SaveChangesAsync();
+
             if (result.Succeeded)
             {
-                return CustomResponse(await GerarJwt(usuarioRegistro.Email));
+                //,usuario.Id
+                return Ok(await GerarJwt(usuarioRegistro.Email));
             }
 
             foreach (var error in result.Errors)
@@ -157,68 +172,39 @@ namespace CadPessoa.Api.Controllers
             };
         }
 
-        //[HttpPut("upload-image/{pessoaId}")]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> UploadImage(int pessoaId)
-        //{
-        //    try
-        //    {
-        //        var pessoa = await _data.Pessoas.Where(p => p.Id == pessoaId).FirstOrDefaultAsync();
 
-        //        var file = Request.Form.Files[0];
-        //        Console.Write("|||||||||||||||||||||||||||||||||||||||||||||||");
-        //        Console.WriteLine(file);
+        [HttpPost("upload-image")]
+        [AllowAnonymous]
+        public async Task<string> SaveImage(IFormFile imageFile, Guid id)
+        {
+            try
+            {
+                string imageName = new String(Path.GetFileNameWithoutExtension(imageFile.FileName)
+                                                 .Take(10)
+                                                 .ToArray()
+                                                 ).Replace(' ', '-');
+                imageName = $"{imageName}{DateTime.UtcNow.ToString("yymmssfff")}{Path.GetExtension(imageFile.FileName)}";
 
-        //        if (file.Length > 0)
-        //        {
-        //            DeleteImagem(pessoa.Image);
-        //            pessoa.Image = await SaveImage(file);
-        //        }
-        //        _data.Pessoas.Update(pessoa);
-        //        _data.SaveChanges();
-        //        //var ProdutoRetorno = await _produtoService.UpdateProduto(produtoId, produto);
+                var imagePath = Path.Combine(_hostEnviroment.ContentRootPath, @"Resources/Images", imageName);
+                using (var fileStream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+                return imageName;
+            }
+            catch (Exception exeption)
+            {
+                return exeption.ToString();
+            }
+        }
+        [NonAction]
 
-        //        return Ok(pessoa);
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        return this.StatusCode(StatusCodes.Status500InternalServerError, $" {ex.Message}");
-        //    }
-
-        //}
-
-        //[HttpPost("upload-image2")]
-        //[AllowAnonymous]
-        //public async Task<string> SaveImage(IFormFile imageFile)
-        //{
-        //    try
-        //    {
-        //        string imageName = new String(Path.GetFileNameWithoutExtension(imageFile.FileName)
-        //                                         .Take(10)
-        //                                         .ToArray()
-        //                                         ).Replace(' ', '-');
-        //        imageName = $"{imageName}{DateTime.UtcNow.ToString("yymmssfff")}{Path.GetExtension(imageFile.FileName)}";
-
-        //        var imagePath = Path.Combine(_hostEnviroment.ContentRootPath, @"Resources/Images", imageName);
-        //        using (var fileStream = new FileStream(imagePath, FileMode.Create))
-        //        {
-        //            await imageFile.CopyToAsync(fileStream);
-        //        }
-        //        return imageName;
-        //    }
-        //    catch (Exception exeption)
-        //    {
-        //        return exeption.ToString();
-        //    }
-        //}
-        //[NonAction]
-
-        //public void DeleteImagem(string imageName)
-        //{
-        //    var imagePath = Path.Combine(_hostEnviroment.ContentRootPath, @"Resources/Images", imageName);
-        //    if (System.IO.File.Exists(imagePath))
-        //        System.IO.File.Delete(imagePath);
-        //}
+        public void DeleteImagem(string imageName)
+        {
+            var imagePath = Path.Combine(_hostEnviroment.ContentRootPath, @"Resources/Images", imageName);
+            if (System.IO.File.Exists(imagePath))
+                System.IO.File.Delete(imagePath);
+        }
 
 
         private static long ToUnixEpochDate(DateTime date)

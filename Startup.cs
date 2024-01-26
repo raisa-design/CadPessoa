@@ -1,6 +1,7 @@
 ﻿using CadPessoa.Api.Configuration;
 using CadPessoa.Api.Data;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 
 namespace CadPessoa.Api
 {
@@ -42,9 +43,16 @@ namespace CadPessoa.Api
 
             app.UseApiConfiguration(env);
 
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Resources")),
+                RequestPath = new PathString("/Resources")
+            });
+
             app.UseCors(option => option.AllowAnyHeader()
                                   .AllowAnyMethod()
                                   .AllowAnyOrigin());
+
         }
     }
 }
