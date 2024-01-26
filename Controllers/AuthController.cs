@@ -1,10 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Xml.Linq;
+using CadPessoa.Api.Domain.Entidades;
 using CadPessoa.Api.Extensions;
 using CadPessoa.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -43,6 +47,15 @@ namespace CadPessoa.Api.Controllers
                 Email = usuarioRegistro.Email,
                 EmailConfirmed = true
             };
+
+            //var usuario = new Usuario
+            //{ 
+            //    UserName = usuarioRegistro.
+            
+            
+            //};
+
+
 
             var result = await _userManager.CreateAsync(user, usuarioRegistro.Senha);
 
@@ -143,6 +156,70 @@ namespace CadPessoa.Api.Controllers
                 }
             };
         }
+
+        //[HttpPut("upload-image/{pessoaId}")]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> UploadImage(int pessoaId)
+        //{
+        //    try
+        //    {
+        //        var pessoa = await _data.Pessoas.Where(p => p.Id == pessoaId).FirstOrDefaultAsync();
+
+        //        var file = Request.Form.Files[0];
+        //        Console.Write("|||||||||||||||||||||||||||||||||||||||||||||||");
+        //        Console.WriteLine(file);
+
+        //        if (file.Length > 0)
+        //        {
+        //            DeleteImagem(pessoa.Image);
+        //            pessoa.Image = await SaveImage(file);
+        //        }
+        //        _data.Pessoas.Update(pessoa);
+        //        _data.SaveChanges();
+        //        //var ProdutoRetorno = await _produtoService.UpdateProduto(produtoId, produto);
+
+        //        return Ok(pessoa);
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        return this.StatusCode(StatusCodes.Status500InternalServerError, $" {ex.Message}");
+        //    }
+
+        //}
+
+        //[HttpPost("upload-image2")]
+        //[AllowAnonymous]
+        //public async Task<string> SaveImage(IFormFile imageFile)
+        //{
+        //    try
+        //    {
+        //        string imageName = new String(Path.GetFileNameWithoutExtension(imageFile.FileName)
+        //                                         .Take(10)
+        //                                         .ToArray()
+        //                                         ).Replace(' ', '-');
+        //        imageName = $"{imageName}{DateTime.UtcNow.ToString("yymmssfff")}{Path.GetExtension(imageFile.FileName)}";
+
+        //        var imagePath = Path.Combine(_hostEnviroment.ContentRootPath, @"Resources/Images", imageName);
+        //        using (var fileStream = new FileStream(imagePath, FileMode.Create))
+        //        {
+        //            await imageFile.CopyToAsync(fileStream);
+        //        }
+        //        return imageName;
+        //    }
+        //    catch (Exception exeption)
+        //    {
+        //        return exeption.ToString();
+        //    }
+        //}
+        //[NonAction]
+
+        //public void DeleteImagem(string imageName)
+        //{
+        //    var imagePath = Path.Combine(_hostEnviroment.ContentRootPath, @"Resources/Images", imageName);
+        //    if (System.IO.File.Exists(imagePath))
+        //        System.IO.File.Delete(imagePath);
+        //}
+
 
         private static long ToUnixEpochDate(DateTime date)
             => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);

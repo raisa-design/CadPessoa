@@ -4,6 +4,10 @@ namespace CadPessoa.Api.Models
 {
     public class UsuarioRegistro
     {
+        public string UserName { get; set; }
+        public string UrlImagem { get; set; }
+        public string Telefone { get; set; }
+
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
         [EmailAddress(ErrorMessage = "O campo {0} está em formato inválido")]
         public string Email { get; set; }

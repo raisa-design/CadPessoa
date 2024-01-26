@@ -184,6 +184,5 @@ namespace CadPessoa.Api.Controllers
             return Ok(pessoaFisica);
         }
 
-
     }
 }
