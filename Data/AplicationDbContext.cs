@@ -11,6 +11,8 @@ namespace CadPessoa.Api.Data
         public DbSet<PessoaFisica> PessoasFisica { get; set; } 
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Contato> Contatos { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
